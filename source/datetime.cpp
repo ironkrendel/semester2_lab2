@@ -2,25 +2,6 @@
 
 using namespace TetoDatetime;
 
-inline int Date::getDayCount(int month) {
-    switch (month) {
-        case 1: return 31;
-        case 2: return 28;
-        case 3: return 31;
-        case 4: return 30;
-        case 5: return 31;
-        case 6: return 30;
-        case 7: return 31;
-        case 8: return 31;
-        case 9: return 30;
-        case 10: return 31;
-        case 11: return 30;
-        case 12: return 31;
-        default:
-            throw std::runtime_error("Error in getDayCount! Month out of range. Excepted 1 <= n <= 12, got n = " + std::to_string(month) + " instead.");
-    }
-};
-
 Datetime::Datetime() {
     
 }
@@ -55,31 +36,27 @@ Datetime::Datetime(int _seconds, int _minutes, int _hours, int _day, int _month,
     year = _year;
 }
 
-inline int Datetime::checkTime(Time _time) {
-    if ((_time.seconds < 0) || (_time.seconds >= 60)) {
+int Datetime::checkTime(Time time) {
+    if ((time.seconds < 0) || (time.seconds >= 60)) {
         return TETO_ERROR_TIME_OUT_OF_RANGE;
     }
-    if ((_time.minutes < 0) || (_time.minutes >= 60)) {
+    if ((time.minutes < 0) || (time.minutes >= 60)) {
         return TETO_ERROR_TIME_OUT_OF_RANGE;
     }
-    if ((_time.hours < 0) || (_time.hours >= 24)) {
+    if ((time.hours < 0) || (time.hours >= 24)) {
         return TETO_ERROR_TIME_OUT_OF_RANGE;
     }
     return TETO_SUCCESS;
 }
 
-inline int Datetime::checkDate(Date _date) {
-    if ((_date.month < 1) || (_date.month > 12)) {
+int Datetime::checkDate(Date date) {
+    if ((date.month < 1) || (date.month > 12)) {
         return TETO_ERROR_DATE_OUT_OF_RANGE;
     }
-    if ((_date.day < 1) || (_date.day > Date::getDayCount(_date.month))) {
+    if ((date.day < 1) || (date.day > Date::getDayCount(date.month))) {
         return TETO_ERROR_DATE_OUT_OF_RANGE;
     }
     return TETO_SUCCESS;
-}
-
-Date Datetime::date() {
-    return Date{day, month, year};
 }
 
 void Datetime::setDate(Date _date) {
@@ -89,10 +66,6 @@ void Datetime::setDate(Date _date) {
     day = _date.day;
     month = _date.month;
     year = _date.year;
-}
-
-Time Datetime::time() {
-    return Time{seconds, minutes, hours};
 }
 
 void Datetime::setTime(Time _time) {
