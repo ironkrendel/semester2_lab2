@@ -3,6 +3,7 @@
 #include <thread>
 
 #include <datetime.hpp>
+#include <networking.hpp>
 #include <colors.hpp>
 
 int main() {
@@ -29,6 +30,24 @@ int main() {
     TetoDatetime::Datetime datetime3(TetoDatetime::Datetime::stringToDatetime("23:59:59 - 02/01/2025 05","%h:%m:%s - %D/%M/%Y %s"));
 
     datetime3.printDateString();
+
+    datetime.syncDatetime();
+    std::cout << datetime.getTimestamp() << std::endl;
+
+    std::cout << "Client (1) / Server (2): ";
     
+    int choice;
+
+    std::cin >> choice;
+
+    if (choice == 1) {
+        TetoNetworking::Client client;
+    }
+    else {
+        TetoNetworking::Server server;
+
+        server.loop();
+    }
+
     return 0;
 }

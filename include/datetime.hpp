@@ -97,14 +97,14 @@ namespace TetoDatetime {
         [[nodiscard]]
         inline auto getTimestamp() const -> long long {
             long long result = 0;
-            result += (365 * 24 * 60 * 60) * year;
+            result += (365 * 24 * 60 * 60) * static_cast<long long>(year);
             for (int i = 1;i < month;i++) {
-                result += Date::getDayCount(i) * (24 * 60 * 60);
+                result += static_cast<long long>(Date::getDayCount(i)) * (24 * 60 * 60);
             }
-            result += (24 * 60 * 60) * (day - 1);
-            result += (60 * 60) * hours;
-            result += 60 * minutes;
-            result += seconds;
+            result += (24 * 60 * 60) * static_cast<long long>(day - 1);
+            result += (60 * 60) * static_cast<long long>(hours);
+            result += 60 * static_cast<long long>(minutes);
+            result += static_cast<long long>(seconds);
 
             return result;
         }
