@@ -76,6 +76,11 @@ void Server::loop() {
             send(new_socket, &ts, sizeof(ts), 0);
             std::cout << "__TIMESTAMP__\n" << std::endl;
         }
+        else {
+            std::string response = "501 Not Implemented\n";
+            send(new_socket, response.data(), response.length(), 0);
+            std::cout << response << std::endl;
+        }
 
         std::cout << "---------------------------------------------\n";
 
