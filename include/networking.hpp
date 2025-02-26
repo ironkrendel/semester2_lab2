@@ -7,6 +7,10 @@
 #include <arpa/inet.h>
 #include <iostream>
 #include <sstream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+#include <filesystem>
 
 namespace TetoNetworking {
     constexpr unsigned int DEFAULT_PORT_SERVER = 50104;
