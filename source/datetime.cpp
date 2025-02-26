@@ -153,13 +153,39 @@ void Datetime::setDate(Date _date) {
     year = _date.year;
 }
 
-void Datetime::printDateString() const {
-    std::cout << "Datetime - " << hours << ':' << minutes << ':' << seconds << ' ' << day << '/' << month << '/' << year << std::endl;
+void Datetime::printDateString(bool padNumbers) const {
+    std::cout << "Datetime - ";
+    if (padNumbers && hours < 10) std::cout << '0';
+    std::cout << hours << ':';
+    if (padNumbers && minutes < 10) std::cout << '0';
+    std::cout << minutes << ':';
+    if (padNumbers && seconds < 10) std::cout << '0';
+    std::cout << seconds << ' ';
+    if (padNumbers && day < 10) std::cout << '0';
+    std::cout << day << '/';
+    if (padNumbers && month < 10) std::cout << '0';
+    std::cout << month << '/';
+    int yearStrlen = std::to_string(year).length();
+    for (int i = 0;i < std::max(0, 4 - yearStrlen);i++) if (padNumbers) std::cout << '0';
+    std::cout << year << std::endl;
 }
 
-void Datetime::printDateString(const std::string& format) const {
+void Datetime::printDateString(const std::string& format, bool padNumbers) const {
     if (format.length() == 0) {
-        std::cout << "Datetime - " << hours << ':' << minutes << ':' << seconds << ' ' << day << '/' << month << '/' << year << std::endl;
+        std::cout << "Datetime - ";
+        if (padNumbers && hours < 10) std::cout << '0';
+        std::cout << hours << ':';
+        if (padNumbers && minutes < 10) std::cout << '0';
+        std::cout << minutes << ':';
+        if (padNumbers && seconds < 10) std::cout << '0';
+        std::cout << seconds << ' ';
+        if (padNumbers && day < 10) std::cout << '0';
+        std::cout << day << '/';
+        if (padNumbers && month < 10) std::cout << '0';
+        std::cout << month << '/';
+        int yearStrlen = std::to_string(year).length();
+        for (int i = 0;i < std::max(0, 4 - yearStrlen);i++) if (padNumbers) std::cout << '0';
+        std::cout << year << std::endl;
         return;
     }
 
@@ -167,21 +193,28 @@ void Datetime::printDateString(const std::string& format) const {
     for (std::size_t i = 0;i < strlen;i++) {
         if (format[i] == '%' && i + 1 < strlen) {
             if (format[i + 1] == 's') {
+                if (padNumbers && seconds < 10) std::cout << '0';
                 std::cout << seconds;
             }
             else if (format[i + 1] == 'm') {
+                if (padNumbers && minutes < 10) std::cout << '0';
                 std::cout << minutes;
             }
             else if (format[i + 1] == 'h') {
+                if (padNumbers && hours < 10) std::cout << '0';
                 std::cout << hours;
             }
             else if (format[i + 1] == 'D') {
+                if (padNumbers && day < 10) std::cout << '0';
                 std::cout << day;
             }
             else if (format[i + 1] == 'M') {
+                if (padNumbers && month < 10) std::cout << '0';
                 std::cout << month;
             }
             else if (format[i + 1] == 'Y') {
+                int yearStrlen = std::to_string(year).length();
+                for (int i = 0;i < std::max(0, 4 - yearStrlen);i++) if (padNumbers) std::cout << '0';
                 std::cout << year;
             }
             else if (format[i + 1] == '%') {

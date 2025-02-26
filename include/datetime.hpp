@@ -135,8 +135,8 @@ namespace TetoDatetime {
         inline auto date() const -> Date {return Date{day, month, year};};
         void setDate(Date date);
 
-        void printDateString() const;
-        void printDateString(const std::string& format) const;
+        void printDateString(bool padNumbers = true) const;
+        void printDateString(const std::string& format, bool padNumbers = true) const;
 
         [[nodiscard]]
         static auto stringToDatetime(const std::string& string, const std::string& format) -> Datetime;

@@ -6,11 +6,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <iostream>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <algorithm>
-#include <filesystem>
+#include <chrono>
+#include <thread>
 
 namespace TetoNetworking {
     constexpr unsigned int DEFAULT_PORT_SERVER = 50104;
@@ -18,6 +15,17 @@ namespace TetoNetworking {
     constexpr int OPT = 1;
     constexpr int BROADCAST_ENABLE = 1;
     constexpr int QUEUE_SIZE = 10;
+
+    struct DatetimePacket {
+        TetoDatetime::Date date;
+        TetoDatetime::Time time;
+
+        DatetimePacket() = default;
+        DatetimePacket(TetoDatetime::Date _date, TetoDatetime::Time _time) {
+            date = _date;
+            time = _time;
+        }
+    };
 
     class Server {
     private:
@@ -35,14 +43,14 @@ namespace TetoNetworking {
 
     class Client {
     private:
-        unsigned int port = DEFAULT_PORT_SERVER;
-        int sockfd;
-        int bcastsockdf;
-        sockaddr_in address;
-        socklen_t addrlen;
+        unsigned int port;
+        std::string ip;
     public:
-        Client();
-        Client(unsigned int socket_port);
-        ~Client();
+        Client() = delete;
+        Client(std::string serverIP, int serverPort = DEFAULT_PORT_SERVER);
+        ~Client() = default;
+
+        auto getDatetime() const -> TetoDatetime::Datetime;
+        auto getTimestamp() const -> long long;
     };
 }
