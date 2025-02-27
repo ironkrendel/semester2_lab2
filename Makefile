@@ -21,55 +21,47 @@ debug: ./main.cpp $(INCLUDES) $(BINARIES_DEBUG)
 main: ./main.cpp $(INCLUDES) $(BINARIES)
 	$(CC) $(CFLAGS) $< -o $@ $(LINKDIR) $(LDFLAGS)
 
+tests_datetime: ./tests/tests_datetime.cpp $(INCLUDES) $(BINARIES)
+	$(CC) $(CFLAGS) $< -o $@ $(LINKDIR) $(LDFLAGS) -lgtest -lgmock -pthread
+
 $(BIN_FOLDER):
 	mkdir $(BIN_FOLDER)
 
 $(BIN_FOLDER)/libdatetime.a: ./source/datetime.cpp ./include/datetime.hpp
-	if [ -d $(BIN_FOLDER) ]; then echo "bin already exists"; else mkdir $(BIN_FOLDER); fi
+	if [ -d $(BIN_FOLDER) ]; then : ; else mkdir $(BIN_FOLDER); fi
 	rm -f $@
 	$(CC) $(CFLAGS) $< -c -o $(basename $@).o $(IFLAGS)
 	ar rcs $@ $(basename $@).o
 	rm -f $(basename $@).o
 
 $(BIN_FOLDER)/libnetworking.a: ./source/networking.cpp ./include/networking.hpp
-	if [ -d $(BIN_FOLDER) ]; then echo "bin already exists"; else mkdir $(BIN_FOLDER); fi
-	rm -f $@
-	$(CC) $(CFLAGS) $< -c -o $(basename $@).o $(IFLAGS)
-	ar rcs $@ $(basename $@).o
-	rm -f $(basename $@).o
-
-$(BIN_FOLDER)/libhttphelper.a: ./source/httphelper.cpp ./include/httphelper.hpp
-	if [ -d $(BIN_FOLDER) ]; then echo "bin already exists"; else mkdir $(BIN_FOLDER); fi
+	if [ -d $(BIN_FOLDER) ]; then : ; else mkdir $(BIN_FOLDER); fi
 	rm -f $@
 	$(CC) $(CFLAGS) $< -c -o $(basename $@).o $(IFLAGS)
 	ar rcs $@ $(basename $@).o
 	rm -f $(basename $@).o
 
 $(BIN_FOLDER)/libdatetimedbg.a: ./source/datetime.cpp ./include/datetime.hpp
-	if [ -d $(BIN_FOLDER) ]; then echo "bin already exists"; else mkdir $(BIN_FOLDER); fi
+	if [ -d $(BIN_FOLDER) ]; then : ; else mkdir $(BIN_FOLDER); fi
 	rm -f $@
 	$(CC) $(CFLAGS) -g $< -c -o $(basename $@).o $(IFLAGS)
 	ar rcs $@ $(basename $@).o
 	rm -f $(basename $@).o
 
 $(BIN_FOLDER)/libnetworkingdbg.a: ./source/networking.cpp ./include/networking.hpp
-	if [ -d $(BIN_FOLDER) ]; then echo "bin already exists"; else mkdir $(BIN_FOLDER); fi
+	if [ -d $(BIN_FOLDER) ]; then : ; else mkdir $(BIN_FOLDER); fi
 	rm -f $@
 	$(CC) $(CFLAGS) -g $< -c -o $(basename $@).o $(IFLAGS)
 	ar rcs $@ $(basename $@).o
 	rm -f $(basename $@).o
 
-$(BIN_FOLDER)/libhttphelperdbg.a: ./source/networking.cpp ./include/networking.hpp
-	if [ -d $(BIN_FOLDER) ]; then echo "bin already exists"; else mkdir $(BIN_FOLDER); fi
-	rm -f $@
-	$(CC) $(CFLAGS) -g $< -c -o $(basename $@).o $(IFLAGS)
-	ar rcs $@ $(basename $@).o
-	rm -f $(basename $@).o
-
-.PHONY: run qcPerf qcRead clean
+.PHONY: run test qcPerf qcRead clean
 
 run: main
 	./main
+
+test: tests_datetime
+	./tests_datetime 2> /dev/null
 
 qcPerf:
 	clang-tidy -checks="-*,boost-*,clang-analyzer-*,modernize-*,performance-*,cppcoreguidelines-*,-cppcoreguidelines-avoid-magic-numbers" main.cpp ./source/* ./include/* -- -I./include/ -std=c++20

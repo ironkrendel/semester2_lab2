@@ -10,6 +10,7 @@ typedef enum TetoResult {
     TETO_SUCCESS,
     TETO_ERROR_TIME_OUT_OF_RANGE,
     TETO_ERROR_DATE_OUT_OF_RANGE,
+    TETO_ERROR_DATE_LEAP_YEAR,
 } TetoResult;
 
 namespace TetoDatetime {
@@ -81,9 +82,9 @@ namespace TetoDatetime {
         Datetime(Time time, Date date);
         Datetime(int seconds, int minutes, int hours, int day, int month, int year);
         Datetime(Datetime& src); // copy
-        Datetime(Datetime&& src) noexcept; // move
+        Datetime(Datetime&& src); // move
         auto operator=(const Datetime& src) -> Datetime&; // copy
-        auto operator=(Datetime&& src) noexcept -> Datetime&; // move
+        auto operator=(Datetime&& src) -> Datetime&; // move
         ~Datetime();
 
         [[nodiscard]]
@@ -92,6 +93,7 @@ namespace TetoDatetime {
         static auto checkDate(Date date) -> int;
         [[nodiscard]]
         static auto getDatetime() -> Datetime;
+        static auto getGMTDiff() -> int;
         void syncDatetime();
 
         [[nodiscard]]

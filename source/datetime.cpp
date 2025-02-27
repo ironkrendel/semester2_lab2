@@ -5,7 +5,8 @@ using namespace TetoDatetime;
 
 // #define DEBUG
 
-Datetime::Datetime(Time time, Date date) {
+Datetime::Datetime(Time time, Date date) : seconds{time.seconds}, minutes{time.minutes}, hours{time.hours},\
+                                           day{date.day}, month{date.month}, year{date.year} {
     #ifdef DEBUG
     std::cout << "birth" << std::endl;
     #endif
@@ -15,15 +16,16 @@ Datetime::Datetime(Time time, Date date) {
     if (checkDate(date) != TETO_SUCCESS) {
         throw std::runtime_error("Error! Date out of range! Passed value - " + date.toString());
     }
-    seconds = time.seconds;
-    minutes = time.minutes;
-    hours = time.hours;
-    day = date.day;
-    month = date.month;
-    year = date.year;
+    // seconds = time.seconds;
+    // minutes = time.minutes;
+    // hours = time.hours;
+    // day = date.day;
+    // month = date.month;
+    // year = date.year;
 }
 
-Datetime::Datetime(int _seconds, int _minutes, int _hours, int _day, int _month, int _year) {
+Datetime::Datetime(int _seconds, int _minutes, int _hours, int _day, int _month, int _year) : seconds{_seconds}, minutes{_minutes},\
+                                                                                              hours{_hours}, day{_day}, year{_year} {
     #ifdef DEBUG
     std::cout << "birth" << std::endl;
     #endif
@@ -33,12 +35,12 @@ Datetime::Datetime(int _seconds, int _minutes, int _hours, int _day, int _month,
     if (checkDate(Date{_day, _month, _year}) != TETO_SUCCESS) {
         throw std::runtime_error("Error! Date out of range! Passed value - " + Date{_day, _month, _year}.toString());
     }
-    seconds = _seconds;
-    minutes = _minutes;
-    hours = _hours;
-    day = _day;
-    month = _month;
-    year = _year;
+    // seconds = _seconds;
+    // minutes = _minutes;
+    // hours = _hours;
+    // day = _day;
+    // month = _month;
+    // year = _year;
 }
 
 Datetime::Datetime(Datetime& src) : Datetime::Datetime(src.seconds, src.minutes, src.hours, src.day, src.month, src.year) {
@@ -47,7 +49,7 @@ Datetime::Datetime(Datetime& src) : Datetime::Datetime(src.seconds, src.minutes,
     #endif
 }
 
-Datetime::Datetime(Datetime&& src) noexcept : Datetime::Datetime(src.seconds, src.minutes, src.hours, src.day, src.month, src.year) {
+Datetime::Datetime(Datetime&& src) : Datetime::Datetime(src.seconds, src.minutes, src.hours, src.day, src.month, src.year) {
     #ifdef DEBUG
     std::cout << "Move" << std::endl;
     #endif
@@ -66,7 +68,7 @@ auto Datetime::operator=(const Datetime& src) -> Datetime& {
     return *this;
 }
 
-auto Datetime::operator=(Datetime&& src) noexcept -> Datetime& {
+auto Datetime::operator=(Datetime&& src) -> Datetime& {
     #ifdef DEBUG
     std::cout << "move" << std::endl;
     #endif
@@ -117,6 +119,13 @@ auto Datetime::getDatetime() -> Datetime {
         time.tm_mday = 28;
     }
     return Datetime(time.tm_sec, time.tm_min, time.tm_hour, time.tm_mday, time.tm_mon + 1, time.tm_year + 1900);
+}
+
+auto Datetime::getGMTDiff() -> int {
+    std::time_t nowTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::tm time{};
+    localtime_r(&nowTime, &time);
+    return static_cast<int>(time.tm_gmtoff / 60 / 60);
 }
 
 void Datetime::syncDatetime() {
