@@ -106,7 +106,7 @@ TEST(GetterSetterTests, GettersSetters) {
     ASSERT_EQ(dt.getYear(), 5);
     dt.setTime(TetoDatetime::Time{2, 2, 2});
     ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{2, 2, 2}).toString());
-    dt.setDate(TetoDatetime::Date(1, 1, 1900));
+    dt.setDate(TetoDatetime::Date{1, 1, 1900});
     ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{1, 1, 1900}).toString());
 }
 
@@ -126,6 +126,14 @@ TEST(GetterSetterTests, GettersSettersInvalidInput) {
     ASSERT_ANY_THROW(dt.setMonth(13));
     ASSERT_ANY_THROW(dt.setMonth(0));
     ASSERT_ANY_THROW(dt.setMonth(-42));
+    ASSERT_ANY_THROW(dt.setDate(TetoDatetime::Date{32, 1, 1900}));
+    ASSERT_ANY_THROW(dt.setDate(TetoDatetime::Date{29, 2, 1900}));
+    ASSERT_ANY_THROW(dt.setDate(TetoDatetime::Date{31, 4, 1900}));
+    ASSERT_ANY_THROW(dt.setDate(TetoDatetime::Date{0, 1, 1900}));
+    ASSERT_ANY_THROW(dt.setDate(TetoDatetime::Date{-5, 1, 1900}));
+    ASSERT_ANY_THROW(dt.setDate(TetoDatetime::Date{1, 13, 1900}));
+    ASSERT_ANY_THROW(dt.setDate(TetoDatetime::Date{1, 0, 1900}));
+    ASSERT_ANY_THROW(dt.setDate(TetoDatetime::Date{1, -5, 1900}));
 }
 
 TEST(CopyMoveOperatorsTests, Copy) {
@@ -276,6 +284,153 @@ TEST(ClockSyncTests, SystemTimeSyncFeb29Test) {
     dt2.syncDatetime(1709078400);
     
     ASSERT_EQ(dt.date().toString(), dt2.date().toString());
+}
+
+TEST(TimeDiffTests, SecsToTest) {
+    TetoDatetime::Datetime dt(TetoDatetime::Time{0, 0, 0}, TetoDatetime::Date{1, 1, 2024});
+    TetoDatetime::Datetime dt2(TetoDatetime::Time{0, 0, 0}, TetoDatetime::Date{2, 1, 2024});
+
+    ASSERT_EQ(dt.secsTo(dt2), 60 * 60 * 24);
+    dt2.setDay(31);
+    ASSERT_EQ(dt.secsTo(dt2), 60 * 60 * 24 * 30);
+    dt2.setMonth(2);
+    dt2.setDay(5);
+    ASSERT_EQ(dt.secsTo(dt2), 60 * 60 * 24 * 35);
+    dt2.setDay(1);
+    dt2.setMonth(1);
+    dt2.setTime(TetoDatetime::Time{30, 0, 0});
+    ASSERT_EQ(dt.secsTo(dt2), 30);
+    dt2.setTime(TetoDatetime::Time{0, 30, 0});
+    ASSERT_EQ(dt.secsTo(dt2), 60 * 30);
+    dt2.setTime(TetoDatetime::Time{0, 0, 5});
+    ASSERT_EQ(dt.secsTo(dt2), 60 * 60 * 5);
+}
+
+TEST(TimeDiffTests, DaysToTest) {
+    TetoDatetime::Datetime dt(TetoDatetime::Time{0, 0, 0}, TetoDatetime::Date{1, 1, 2024});
+    TetoDatetime::Datetime dt2(TetoDatetime::Time{0, 0, 0}, TetoDatetime::Date{2, 1, 2024});
+
+    ASSERT_EQ(dt.daysTo(dt2), 1);
+    dt2.setDay(31);
+    ASSERT_EQ(dt.daysTo(dt2), 30);
+    dt2.setMonth(2);
+    dt2.setDay(5);
+    ASSERT_EQ(dt.daysTo(dt2), 35);
+}
+
+TEST(AddTimeTests, AddSecondsTest) {
+    TetoDatetime::Datetime dt(TetoDatetime::Time{0, 0, 0}, TetoDatetime::Date{1, 1, 2024});
+
+    dt.addSeconds(30);
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{30, 0, 0}).toString());
+    dt.setTime(TetoDatetime::Time{0, 0, 0});
+    dt.addSeconds(60);
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{0, 1, 0}).toString());
+    dt.setTime(TetoDatetime::Time{0, 0, 0});
+    dt.addSeconds(90);
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{30, 1, 0}).toString());
+    dt.setTime(TetoDatetime::Time{30, 0, 0});
+    dt.addSeconds(-30);
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{0, 0, 0}).toString());
+    dt.setTime(TetoDatetime::Time{30, 1, 0});
+    dt.addSeconds(-90);
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{0, 0, 0}).toString());
+}
+
+TEST(AddTimeTests, AddMinutesTest) {
+    TetoDatetime::Datetime dt(TetoDatetime::Time{0, 0, 0}, TetoDatetime::Date{1, 1, 2024});
+
+    dt.addMinutes(30);
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{0, 30, 0}).toString());
+    dt.setTime(TetoDatetime::Time{0, 0, 0});
+    dt.addMinutes(60);
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{0, 0, 1}).toString());
+    dt.setTime(TetoDatetime::Time{0, 0, 0});
+    dt.addMinutes(90);
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{0, 30, 1}).toString());
+    dt.setTime(TetoDatetime::Time{0, 30, 0});
+    dt.addMinutes(-30);
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{0, 0, 0}).toString());
+    dt.setTime(TetoDatetime::Time{0, 30, 1});
+    dt.addMinutes(-90);
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{0, 0, 0}).toString());
+}
+
+TEST(AddTimeTests, AddHoursTest) {
+    TetoDatetime::Datetime dt(TetoDatetime::Time{0, 0, 0}, TetoDatetime::Date{1, 1, 2024});
+
+    dt.addHours(6);
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{0, 0, 6}).toString());
+    dt.setTime(TetoDatetime::Time{0, 0, 0});
+    dt.addHours(24);
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{0, 0, 0}).toString());
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{2, 1, 2024}).toString());
+    dt.setTime(TetoDatetime::Time{0, 0, 0});
+    dt.setDate(TetoDatetime::Date{1, 1, 2024});
+    dt.addHours(30);
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{0, 0, 6}).toString());
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{2, 1, 2024}).toString());
+    dt.setTime(TetoDatetime::Time{0, 0, 5});
+    dt.setDate(TetoDatetime::Date{1, 1, 2024});
+    dt.addHours(-5);
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{0, 0, 0}).toString());
+    dt.setTime(TetoDatetime::Time{0, 0, 6});
+    dt.setDate(TetoDatetime::Date{2, 1, 2024});
+    dt.addHours(-30);
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{0, 0, 0}).toString());
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{1, 1, 2024}).toString());
+}
+
+TEST(AddTimeTests, AddDaysTest) {
+    TetoDatetime::Datetime dt(TetoDatetime::Time{0, 0, 0}, TetoDatetime::Date{1, 1, 2024});
+
+    dt.addDays(5);
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{6, 1, 2024}).toString());
+    dt.setDate(TetoDatetime::Date{1, 1, 2024});
+    dt.addDays(31);
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{1, 2, 2024}).toString());
+    dt.setDate(TetoDatetime::Date{1, 1, 2024});
+    dt.addDays(31 + 28);
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{1, 3, 2024}).toString());
+    dt.setDate(TetoDatetime::Date{2, 1, 2024});
+    dt.addDays(-1);
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{1, 1, 2024}).toString());
+    dt.setDate(TetoDatetime::Date{2, 2, 2024});
+    dt.addDays(-32);
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{1, 1, 2024}).toString());
+}
+
+TEST(AddTimeTests, AddMonthsTest) {
+    TetoDatetime::Datetime dt(TetoDatetime::Time{0, 0, 0}, TetoDatetime::Date{1, 1, 2024});
+
+    dt.addMonths(1);
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{1, 2, 2024}).toString());
+    dt.setDate(TetoDatetime::Date{1, 1, 2024});
+    dt.addMonths(12);
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{1, 1, 2025}).toString());
+    dt.setDate(TetoDatetime::Date{1, 2, 2024});
+    dt.addMonths(-1);
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{1, 1, 2024}).toString());
+    dt.setDate(TetoDatetime::Date{1, 1, 2024});
+    dt.addMonths(-6);
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{1, 7, 2023}).toString());
+    dt.setDate(TetoDatetime::Date{1, 1, 2024});
+    dt.addMonths(-12);
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{1, 1, 2023}).toString());
+}
+
+TEST(AddTimeTests, AddYearsTest) {
+    TetoDatetime::Datetime dt(TetoDatetime::Time{0, 0, 0}, TetoDatetime::Date{1, 1, 2024});
+
+    dt.addYears(1);
+    ASSERT_EQ(dt.getYear(), 2025);
+    dt.setDate(TetoDatetime::Date{1, 1, 2024});
+    dt.addYears(-1);
+    ASSERT_EQ(dt.getYear(), 2023);
+}
+
+TEST(StringToDatetimeTests, StringToDatetimeTest) {
+    TetoDatetime::Datetime dt = TetoDatetime::Datetime::stringToDatetime("", "");
 }
 
 int main(int argc, char** argv) {

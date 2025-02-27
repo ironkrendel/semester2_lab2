@@ -437,8 +437,15 @@ void Datetime::addMonths(const int _months) {
     month += _months;
     if (_months < 0) {
         if (month < 0) {
-            year -= abs(month) / 12 + 1;
-            month = (12 * (abs(month) / 12 + 1)) + month;
+            if (abs(month) < 12) {
+                year -= 1;
+                month = 12 + month;
+            }
+            else {
+                year -= abs(month) / 12;
+                month = (12 * (abs(month) / 12)) + month;
+            }
+            // month = (12 * (abs(month) / 12)) + month;
         }
     }
     else {
