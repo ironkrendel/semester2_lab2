@@ -19,7 +19,11 @@ int main() {
         std::string ip;
         std::cin >> ip;
 
-        TetoNetworking::Client client(ip);
+        std::cout << "Enter server port: ";
+        int port;
+        std::cin >> port;
+
+        TetoNetworking::Client client(ip, port);
 
         TetoDatetime::Datetime dt = client.getDatetime();
         dt.printDateString();

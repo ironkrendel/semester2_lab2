@@ -77,7 +77,7 @@ void Server::loop() {
             std::cout << "__TIMESTAMP__\n" << std::endl;
         }
         else {
-            std::string response = "501 Not Implemented\n";
+            std::string response = "HTTP/1.1 501 Not Implemented\n\n";
             send(new_socket, response.data(), response.length(), 0);
             std::cout << response << std::endl;
         }
