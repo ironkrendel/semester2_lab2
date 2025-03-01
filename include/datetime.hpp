@@ -13,6 +13,8 @@ typedef enum TetoResult {
     TETO_ERROR_DATE_LEAP_YEAR,
 } TetoResult;
 
+#define DISCARD_DAYS
+
 namespace TetoDatetime {
     #define ASSERT_AND_SET_TIME(src, dst, assert_func, error_msg) {\
         if (assert_func != TETO_SUCCESS) {\
@@ -29,9 +31,9 @@ namespace TetoDatetime {
     constexpr int DEFAULT_VALUE_YEAR = 1900;
 
     struct Time {
-        int seconds = 0;
-        int minutes = 0;
-        int hours = 0;
+        int seconds = 0; // 0 - 59
+        int minutes = 0; // 0 - 59
+        int hours = 0; // 0 - 23
 
         [[nodiscard]]
         inline auto toString() const -> std::string {
@@ -40,9 +42,9 @@ namespace TetoDatetime {
     };
 
     struct Date {
-        int day = 1;
-        int month = 1;
-        int year = 0;
+        int day = 1; // 1 - 31
+        int month = 1; // 1 - 12
+        int year = 0; // INT_MIN - INT_MAX
 
         [[nodiscard]]
         inline auto toString() const -> std::string {
@@ -141,7 +143,7 @@ namespace TetoDatetime {
         void printDateString(const std::string& format, bool padNumbers = true) const;
 
         [[nodiscard]]
-        static auto stringToDatetime(const std::string& string, const std::string& format) -> Datetime;
+        static auto stringToDatetime(const std::string& format, const std::string& string) -> Datetime;
 
         void addSeconds(int seconds);
         void addMinutes(int minutes);

@@ -25,7 +25,7 @@ Datetime::Datetime(Time time, Date date) : seconds{time.seconds}, minutes{time.m
 }
 
 Datetime::Datetime(int _seconds, int _minutes, int _hours, int _day, int _month, int _year) : seconds{_seconds}, minutes{_minutes},\
-                                                                                              hours{_hours}, day{_day}, year{_year} {
+                                                                                              hours{_hours}, day{_day}, month{_month}, year{_year} {
     #ifdef DEBUG
     std::cout << "birth" << std::endl;
     #endif
@@ -247,7 +247,7 @@ static void NEGATE_BUFFER(std::optional<int>& buffer, bool negation) {
     if (negation) buffer = buffer.value() * -1;
 };
 
-auto Datetime::stringToDatetime(const std::string& string, const std::string& format) -> Datetime {
+auto Datetime::stringToDatetime(const std::string& format, const std::string& string) -> Datetime {
     std::optional<int> seconds_buffer;
     bool seconds_negation = false;
     std::optional<int> minutes_buffer;
@@ -291,7 +291,7 @@ auto Datetime::stringToDatetime(const std::string& string, const std::string& fo
             // parse
             while (iterStr < string.length() && (isdigit(string[iterStr]) || string[iterStr] == '-')) {
                 // flip negation flag for buffer
-                if (string[iterStr] == '-') {
+                if (string[iterStr] == '-' && ((iterStr >= 1 && !isdigit(string[iterStr - 1])) || iterStr == 0)) {
                     switch (format[iterFormat + 1])
                     {
                     case 's':
@@ -317,7 +317,7 @@ auto Datetime::stringToDatetime(const std::string& string, const std::string& fo
                     }
                 }
                 // add number to buffer
-                else {
+                else if (isdigit(string[iterStr])) {
                     switch (format[iterFormat + 1])
                     {
                     case 's':
@@ -347,6 +347,9 @@ auto Datetime::stringToDatetime(const std::string& string, const std::string& fo
                     default:
                         break;
                     }
+                }
+                else {
+                    break;
                 }
                 iterStr++;
             }
@@ -433,6 +436,9 @@ void Datetime::addDays(const int _days) {
 }
 
 void Datetime::addMonths(const int _months) {
+    #ifndef DISCARD_DAYS
+    int startMonthDayCount = Date::getDayCount(month);
+    #endif
     month--;
     month += _months;
     if (_months < 0) {
@@ -451,6 +457,26 @@ void Datetime::addMonths(const int _months) {
     else {
         year += month / 12;
         month = month % 12;
+    }
+    if (day + 1 > Date::getDayCount(month + 1)) {
+        if (_months < 0) {
+            day = Date::getDayCount(month + 1);
+            #ifndef DISCARD_DAYS
+            day -= startMonthDayCount - Date::getDayCount(month + 1);
+            #endif
+        }
+        else {
+            #ifdef DISCARD_DAYS
+            day = Date::getDayCount(month + 1);
+            #else
+            day -= Date::getDayCount(month + 1);
+            month++;
+            if (month >= 12) {
+                month = 0;
+                year++;
+            }
+            #endif
+        }
     }
     month++;
 }

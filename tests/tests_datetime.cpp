@@ -417,6 +417,21 @@ TEST(AddTimeTests, AddMonthsTest) {
     dt.setDate(TetoDatetime::Date{1, 1, 2024});
     dt.addMonths(-12);
     ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{1, 1, 2023}).toString());
+#ifdef DISCARD_DAYS
+    dt.setDate(TetoDatetime::Date{31, 1, 2024});
+    dt.addMonths(1);
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{28, 2, 2024}).toString());
+    dt.setDate(TetoDatetime::Date{31, 3, 2024});
+    dt.addMonths(-1);
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{28, 2, 2024}).toString());
+#else
+    dt.setDate(TetoDatetime::Date{31, 1, 2024});
+    dt.addMonths(1);
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{3, 3, 2024}).toString());
+    dt.setDate(TetoDatetime::Date{31, 3, 2024});
+    dt.addMonths(-1);
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{25, 2, 2024}).toString());
+#endif
 }
 
 TEST(AddTimeTests, AddYearsTest) {
@@ -430,12 +445,34 @@ TEST(AddTimeTests, AddYearsTest) {
 }
 
 TEST(StringToDatetimeTests, StringToDatetimeTest) {
-    TetoDatetime::Datetime dt = TetoDatetime::Datetime::stringToDatetime("", "");
+    TetoDatetime::Datetime dt = TetoDatetime::Datetime::stringToDatetime("%h:%m:%s-%D/%M/%Y", "5:31:24-31/5/2024");
+
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{31, 5, 2024}).toString());
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{24, 31, 5}).toString());
+
+    dt = TetoDatetime::Datetime::stringToDatetime("%h %m %s %D %M %Y", "5 31 24 31 5 2024");
+
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{31, 5, 2024}).toString());
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{24, 31, 5}).toString());
+
+    dt = TetoDatetime::Datetime::stringToDatetime("%hTE0104TO%m %s %D %M %Y", "5TE0104TO31 24 31 5 2024");
+
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{31, 5, 2024}).toString());
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{24, 31, 5}).toString());
+
+    ASSERT_ANY_THROW(TetoDatetime::Datetime::stringToDatetime("%h %m %s %D %M %Y", "5 31 24 31 2 2024"));
+
+    ASSERT_ANY_THROW(TetoDatetime::Datetime::stringToDatetime("%h %m %s %D %M %Y", "-5 31 24 31 1 2024"));
+
+    dt = TetoDatetime::Datetime::stringToDatetime("%hTE0104TO%m %s %D %M %Y", "5TE0104TO31 24 31 5 -2024");
+
+    ASSERT_EQ(dt.date().toString(), (TetoDatetime::Date{31, 5, -2024}).toString());
+    ASSERT_EQ(dt.time().toString(), (TetoDatetime::Time{24, 31, 5}).toString());
 }
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
-    testing::InitGoogleMock(&argc, argv);
+    // testing::InitGoogleMock(&argc, argv);
 
     return RUN_ALL_TESTS();
 }
